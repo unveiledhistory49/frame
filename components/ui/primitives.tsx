@@ -1,4 +1,5 @@
 import { cx } from "@/lib/utils";
+import Image from "next/image";
 import React from "react";
 
 export function Button({
@@ -91,7 +92,7 @@ export function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
     <input
       {...props}
       className={cx(
-        "h-9 w-full rounded-lg border border-line bg-white px-3 text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 dark:border-linedark dark:bg-white/5 dark:text-slate-100",
+        "h-11 w-full rounded-lg border border-line bg-white px-3 text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 dark:border-linedark dark:bg-white/5 dark:text-slate-100",
         props.className
       )}
     />
@@ -109,8 +110,7 @@ export function Avatar({
 }) {
   if (src) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <Image
         src={src}
         alt={name}
         width={size}

@@ -1,5 +1,6 @@
 import { Topbar } from "@/components/shell/Topbar";
 import { Card } from "@/components/ui/primitives";
+import Image from "next/image";
 import { activity, userById } from "@/lib/data";
 
 export default function ActivityPage() {
@@ -18,8 +19,7 @@ export default function ActivityPage() {
                 const u = userById(a.actorId);
                 return (
                   <div key={a.id} className="flex gap-3 px-5 py-3.5">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={u.avatar} alt={u.name} className="h-8 w-8 rounded-full object-cover" />
+                    <Image src={u.avatar} alt={`${u.name} profile photo`} width={32} height={32} loading="lazy" priority={false} className="h-8 w-8 rounded-full object-cover" />
                     <p className="text-sm">
                       <span className="font-medium">{a.text}</span>
                       {a.detail && <span className="block text-[13px] text-slate-500">{a.detail}</span>}

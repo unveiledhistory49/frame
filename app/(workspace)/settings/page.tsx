@@ -90,10 +90,11 @@ export default function SettingsPage() {
         {tab === "General" && (
           <Card className="max-w-xl space-y-3 p-5">
             <h2 className="font-semibold">Workspace</h2>
-            <label className="block text-sm">Name<input defaultValue="Acme Inc." onChange={() => setUnsaved(true)} className="mt-1 h-9 w-full rounded-lg border border-line bg-white px-3 dark:border-linedark dark:bg-white/5" /></label>
-            {unsaved && (
-              <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-[13px] text-amber-600">Unsaved changes — remember to save before leaving.</p>
-            )}
+            <label htmlFor="workspace-name" className="block text-sm font-medium">Workspace name</label>
+            <input id="workspace-name" name="workspace-name" defaultValue="Acme Inc." autoComplete="organization" onChange={() => setUnsaved(true)} aria-describedby="workspace-unsaved-status" className="mt-1 h-11 w-full rounded-lg border border-line bg-white px-3 dark:border-linedark dark:bg-white/5" />
+            <p id="workspace-unsaved-status" role="status" aria-live="polite" className="min-h-[20px] text-[13px] text-amber-600">
+              {unsaved ? "Unsaved changes — remember to save before leaving." : ""}
+            </p>
             <div className="flex gap-2">
               <Button size="sm" onClick={() => { setUnsaved(false); pushToast({ title: "Settings saved" }); }}>Save changes</Button>
               <Button size="sm" variant="ghost" onClick={() => setUnsaved(false)}>Discard</Button>
@@ -103,7 +104,7 @@ export default function SettingsPage() {
             {!confirmDelete ? (
               <Button size="sm" variant="danger" onClick={() => setConfirmDelete(true)}>Delete workspace…</Button>
             ) : (
-              <div className="rounded-xl border border-danger/30 bg-danger/5 p-3">
+              <div className="rounded-xl border border-danger/30 bg-danger/5 p-3" role="status" aria-live="polite">
                 <p className="text-[13px]">Type <b>DELETE</b> to confirm. This permanently removes projects, tasks and files.</p>
                 <div className="mt-2 flex gap-2">
                   <Button size="sm" variant="danger" onClick={() => pushToast({ title: "Workspace deleted", body: "Recoverable from trash for 30 days." })}>Confirm delete</Button>

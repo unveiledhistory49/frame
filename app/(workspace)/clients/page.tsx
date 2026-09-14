@@ -13,7 +13,10 @@ export default function ClientsPage() {
           <h1 className="text-xl font-bold tracking-tight">Clients</h1>
           <Button className="ml-auto"><span className="text-lg leading-none">+</span> New Client</Button>
         </div>
-        <div className="mt-4 max-w-md"><Input placeholder="Search clients…" /></div>
+        <div className="mt-4 max-w-md">
+          <label htmlFor="clients-search" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">Search clients</label>
+          <Input id="clients-search" placeholder="Search clients…" className="h-11 min-h-[44px]" />
+        </div>
         <Card className="mt-4 overflow-hidden">
           <div className="hidden grid-cols-[1.4fr_1.4fr_0.6fr_0.7fr] gap-3 border-b border-line px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 sm:grid dark:border-linedark">
             <span>Name</span><span>Contact</span><span>Projects</span><span className="text-right">Status</span>

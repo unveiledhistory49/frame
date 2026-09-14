@@ -2,6 +2,7 @@
 
 import { Icon } from "@/components/ui/Icon";
 import { Badge } from "@/components/ui/primitives";
+import Image from "next/image";
 import { tasks, userById, type Task, type TaskStatus } from "@/lib/data";
 import { useUI } from "@/lib/store";
 import { cx, formatDate } from "@/lib/utils";
@@ -75,8 +76,7 @@ export function Kanban({ projectId, compact }: { projectId: string; compact?: bo
                       {t.assignees.map((a) => {
                         const u = userById(a);
                         return (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img key={a} src={u.avatar} alt={u.name} title={u.name} className="h-6 w-6 rounded-full object-cover ring-2 ring-white dark:ring-carddark" />
+                          <Image key={a} src={u.avatar} alt={`${u.name} profile photo`} title={u.name} width={24} height={24} loading="lazy" priority={false} className="h-6 w-6 rounded-full object-cover ring-2 ring-white dark:ring-carddark" />
                         );
                       })}
                     </span>

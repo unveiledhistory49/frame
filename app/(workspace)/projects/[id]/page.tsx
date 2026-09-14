@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Topbar } from "@/components/shell/Topbar";
 import { Kanban } from "@/components/product/Kanban";
 import { Timeline } from "@/components/product/Timeline";
@@ -18,13 +19,50 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
   const [loading] = useState(false);
   const pushToast = useUI((s) => s.pushToast);
   const list = tasks.filter((t) => t.projectId === project.id);
+  const views = ["Overview", "Board", "Timeline", "Activity"] as const;
+
+  // Sliding pill (16-tabs-sliding): JS writes the active tab's offsetLeft /
+  // offsetWidth onto the pill; CSS owns the 250ms tween. First position is
+  // set with transition:none + reflow, then restored so the pill snaps
+  // before any animation can run.
+  const pillRef = useRef<HTMLSpanElement>(null);
+  const tabRefs = useRef(new Map<string, HTMLButtonElement>());
+  const firstPaint = useRef(true);
+
+  useLayoutEffect(() => {
+    const pill = pillRef.current;
+    if (!pill) return;
+    const moveTo = (animate: boolean) => {
+      const tab = tabRefs.current.get(view);
+      if (!tab) return;
+      // Inset the pill 12px each side to match the previous static style.
+      const x = tab.offsetLeft + 12;
+      const w = Math.max(tab.offsetWidth - 24, 0);
+      if (!animate) {
+        const prev = pill.style.transition;
+        pill.style.transition = "none";
+        pill.style.transform = `translateX(${x}px)`;
+        pill.style.width = `${w}px`;
+        void pill.offsetWidth;
+        pill.style.transition = prev;
+      } else {
+        pill.style.transform = `translateX(${x}px)`;
+        pill.style.width = `${w}px`;
+      }
+    };
+    // First paint: snap with no transition; later view changes tween.
+    moveTo(!firstPaint.current);
+    firstPaint.current = false;
+    const onResize = () => moveTo(false);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [view]);
 
   return (
     <>
       {/* Cover */}
       <div className="relative">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/covers/project-phoenix.jpg" alt="" className="h-44 w-full object-cover sm:h-56" />
+        <Image src="/images/covers/project-phoenix.jpg" alt="Project Phoenix cover — mountain range at dusk" width={1536} height={512} loading="eager" priority={false} className="h-44 w-full object-cover sm:h-56" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0B1220] via-[#0B1220]/55 to-transparent" />
         <div className="absolute inset-x-0 top-0">
           <div className="mx-auto flex max-w-6xl items-center gap-2 p-4 text-white">
@@ -37,7 +75,7 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
             </button>
             <span className="relative grid h-9 w-9 place-items-center rounded-full bg-white/10"><Icon name="bell" size={16} /><span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-red-400" /></span>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/avatars/alex-morgan.jpg" alt="Alex" className="h-9 w-9 rounded-full object-cover" />
+            <Image src="/images/avatars/alex-morgan.jpg" alt="Alex Morgan profile photo" width={36} height={36} loading="lazy" className="h-9 w-9 rounded-full object-cover" />
           </div>
         </div>
         <div className="absolute inset-x-0 bottom-0">
@@ -60,7 +98,7 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
                   {project.members.map((m) => {
                     const u = userById(m);
                     // eslint-disable-next-line @next/next/no-img-element
-                    return <img key={m} src={u.avatar} alt={u.name} title={u.name} className="h-7 w-7 rounded-full object-cover ring-2 ring-white/40" />;
+                    return <Image key={m} src={u.avatar} alt={`${u.name} profile photo`} title={u.name} width={28} height={28} loading="lazy" className="h-7 w-7 rounded-full object-cover ring-2 ring-white/40" />;
                   })}
                   <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20 text-[11px] font-semibold text-white ring-2 ring-white/40">+3</span>
                 </span>
@@ -74,17 +112,23 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
       </div>
 
       <div className="border-b border-line bg-white dark:border-linedark dark:bg-canvashark">
-        <div className="mx-auto flex max-w-6xl gap-1 px-4 sm:px-6">
-          {(["Overview", "Board", "Timeline", "Activity"] as const).map((v) => (
+        <div role="tablist" aria-label="Project views" className="t-tabs-underline mx-auto flex max-w-6xl gap-1 px-4 sm:px-6">
+          {views.map((v) => (
             <button
               key={v}
+              ref={(el) => {
+                if (el) tabRefs.current.set(v, el);
+                else tabRefs.current.delete(v);
+              }}
+              role="tab"
+              aria-selected={view === v}
               onClick={() => setView(v)}
-              className={cx("relative px-4 py-3 text-sm font-medium", view === v ? "text-accentdeep dark:text-white" : "text-slate-500 hover:text-slate-800 dark:text-slate-400")}
+              className={cx("relative px-4 py-3 text-sm font-medium transition-colors", view === v ? "text-accentdeep dark:text-white" : "text-slate-500 hover:text-slate-800 dark:text-slate-400")}
             >
               {v}
-              {view === v && <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-accentdeep dark:bg-accent" />}
             </button>
           ))}
+          <span ref={pillRef} aria-hidden="true" className="t-tabs-underline-pill bg-accentdeep dark:bg-accent" />
         </div>
       </div>
 
@@ -123,7 +167,7 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
               <ul className="mt-3 space-y-2.5">
                 {project.members.map((m) => {
                   const u = userById(m);
-                  return <li key={m} className="flex items-center gap-2.5 text-sm"><img src={u.avatar} alt={u.name} className="h-7 w-7 rounded-full object-cover" /><span className="font-medium">{u.name}</span><span className="ml-auto text-xs text-slate-400">{u.role}</span></li>;
+                  return <li key={m} className="flex items-center gap-2.5 text-sm"><Image src={u.avatar} alt={`${u.name} profile photo`} width={28} height={28} loading="lazy" className="h-7 w-7 rounded-full object-cover" /><span className="font-medium">{u.name}</span><span className="ml-auto text-xs text-slate-400">{u.role}</span></li>;
                 })}
               </ul>
             </Card>

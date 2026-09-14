@@ -1,6 +1,7 @@
 import { Topbar } from "@/components/shell/Topbar";
 import { TaskPanel } from "@/components/product/TaskPanel";
 import { Button, Card, Input } from "@/components/ui/primitives";
+import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
 import { documents, userById } from "@/lib/data";
 
@@ -21,7 +22,10 @@ export default function DocumentsPage() {
           <h1 className="text-xl font-bold tracking-tight">Documents</h1>
           <Button className="ml-auto"><Icon name="upload" size={15} /> Upload</Button>
         </div>
-        <div className="mt-4 max-w-md"><Input placeholder="Search documents…" /></div>
+        <div className="mt-4 max-w-md">
+          <label htmlFor="documents-search" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">Search documents</label>
+          <Input id="documents-search" placeholder="Search documents…" className="h-11 min-h-[44px]" />
+        </div>
         <Card className="mt-4 overflow-hidden">
           <div className="hidden grid-cols-[1.6fr_1fr_1fr] gap-3 border-b border-line px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 sm:grid dark:border-linedark">
             <span>Name</span><span>Owner</span><span className="text-right">Last modified</span>
@@ -36,8 +40,7 @@ export default function DocumentsPage() {
                     <span><span className="block text-sm font-medium">{d.name}</span><span className="block text-[11px] text-slate-400">{d.detail}</span></span>
                   </span>
                   <span className="flex items-center gap-2 text-[13px]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={u.avatar} alt={u.name} className="h-6 w-6 rounded-full object-cover" /> {u.name}
+                    <Image src={u.avatar} alt={`${u.name} profile photo`} width={24} height={24} loading="lazy" priority={false} className="h-6 w-6 rounded-full object-cover" /> {u.name}
                   </span>
                   <span className="text-[13px] text-slate-500 sm:text-right">{d.modified}</span>
                 </li>

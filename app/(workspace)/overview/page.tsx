@@ -4,24 +4,26 @@ import { TaskPanel } from "@/components/product/TaskPanel";
 import { Card } from "@/components/ui/primitives";
 import { deadlines } from "@/lib/data";
 import { Icon } from "@/components/ui/Icon";
+import { Reveal } from "@/components/ui/Reveal";
 
 export default function OverviewPage() {
   return (
     <>
       <Topbar crumbs={["Dashboard", "Overview"]} />
       <main className="mx-auto max-w-6xl space-y-4 p-4 sm:p-6">
-        <div className="anim-rise">
+        <Reveal>
           <h1 className="text-[22px] font-bold tracking-tight">Good morning, Alex</h1>
           <p className="text-sm text-muted dark:text-muteddark">Here&apos;s what&apos;s happening today.</p>
-        </div>
+        </Reveal>
 
-        <div className="stagger grid gap-4 sm:grid-cols-3">
+        <Reveal lines className="grid gap-4 sm:grid-cols-3">
           {[
             { icon: "circle-check", tint: "bg-blue-500/15 text-blue-500", value: "24", label: "Tasks", delta: "↑ 12% from last week", good: true },
             { icon: "calendar", tint: "bg-violet-500/15 text-violet-500", value: "08", label: "Due", delta: "↓ 3% from last week", good: false },
             { icon: "wallet", tint: "bg-emerald-500/15 text-emerald-500", value: "$42k", label: "Revenue", delta: "↑ 18% from last week", good: true },
-          ].map((s) => (
-            <Card key={s.label} className="flex items-center gap-4 p-5">
+          ].map((s, i) => (
+            <div key={s.label} className={`t-stagger-line t-stagger-line--${Math.min(i + 1, 6)}`}>
+            <Card className="flex items-center gap-4 p-5">
               <span className={`grid h-11 w-11 place-items-center rounded-full ${s.tint}`}>
                 <Icon name={s.icon} size={20} />
               </span>
@@ -31,11 +33,12 @@ export default function OverviewPage() {
                 <span className={`mt-1 block text-xs font-medium ${s.good ? "text-emerald-500" : "text-amber-500"}`}>{s.delta}</span>
               </span>
             </Card>
+            </div>
           ))}
-        </div>
+        </Reveal>
 
         <div className="grid gap-4 lg:grid-cols-5">
-          <Card className="anim-rise p-5 lg:col-span-3">
+          <Card className="p-5 lg:col-span-3">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-[15px] font-semibold">Project activity</h2>
               <span className="flex items-center gap-3 text-xs text-slate-400">
@@ -45,7 +48,7 @@ export default function OverviewPage() {
             </div>
             <ActivityChart />
           </Card>
-          <Card className="anim-rise p-5 lg:col-span-2">
+          <Card className="p-5 lg:col-span-2">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-[15px] font-semibold">Upcoming deadlines</h2>
               <a href="/projects" className="text-xs font-medium text-info hover:underline">View all</a>

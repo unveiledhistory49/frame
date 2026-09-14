@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
+import { Reveal } from "@/components/ui/Reveal";
 
 function MarketingNav() {
   return (
@@ -25,7 +27,7 @@ export default function LandingPage() {
       <MarketingNav />
       <main>
         <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2 lg:py-20">
-          <div className="anim-rise">
+          <Reveal>
             <p className="inline-flex items-center gap-2 rounded-full border border-line px-3 py-1 text-xs font-medium text-slate-500 dark:border-linedark">New · Timeline view is live</p>
             <h1 className="mt-4 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl">Teamwork with a Frame around it.</h1>
             <p className="mt-4 max-w-md text-[17px] leading-relaxed text-slate-500">Projects, clients, documents and activity in one calm workspace. Designed for teams that ship — not for configuring software.</p>
@@ -34,11 +36,10 @@ export default function LandingPage() {
               <Link href="/overview" className="rounded-xl border border-line px-6 py-3 text-[15px] font-semibold hover:bg-slate-50 dark:border-linedark">View live demo</Link>
             </div>
             <p className="mt-4 text-[13px] text-slate-400">Free 14-day Pro trial · No credit card · Cancel anytime</p>
-          </div>
-          <div className="anim-pop">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/marketing/hero-dashboard.jpg" alt="Frame dashboard" className="rounded-2xl border border-line shadow-pop dark:border-linedark" />
-          </div>
+          </Reveal>
+          <Reveal>
+            <Image src="/images/marketing/hero-dashboard.jpg" alt="Frame project dashboard preview showing tasks, timeline and activity" width={1200} height={800} sizes="(max-width: 768px) 100vw, 50vw" priority className="rounded-2xl border border-line shadow-pop dark:border-linedark" />
+          </Reveal>
         </section>
 
         <section className="border-y border-line bg-white dark:border-linedark dark:bg-carddark">
@@ -58,8 +59,7 @@ export default function LandingPage() {
         </section>
 
         <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/marketing/team-collab.jpg" alt="Team collaborating" className="rounded-2xl border border-line object-cover dark:border-linedark" />
+          <Image src="/images/marketing/team-collab.jpg" alt="Team collaborating in the Frame workspace" width={1200} height={800} sizes="(max-width: 768px) 100vw, 50vw" loading="lazy" priority={false} className="rounded-2xl border border-line object-cover dark:border-linedark" />
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Information architecture, not page sprawl.</h2>
             <p className="mt-3 leading-relaxed text-slate-500">Fourteen nav items became five destinations. Contextual work moved into the project workspace and command palette — where it belongs.</p>

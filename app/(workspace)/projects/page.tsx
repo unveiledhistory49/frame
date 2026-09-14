@@ -45,13 +45,15 @@ export default function ProjectsPage() {
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`rounded-full px-3.5 py-1.5 text-[13px] font-medium transition ${tab === t ? "bg-accentdeep text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300"}`}
+              aria-pressed={tab === t}
+              className={`inline-flex min-h-[44px] items-center rounded-full px-3.5 py-1.5 text-[13px] font-medium transition ${tab === t ? "bg-accentdeep text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300"}`}
             >
               {t}
             </button>
           ))}
           <div className="ml-auto w-full max-w-xs">
-            <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search projects…" />
+            <label htmlFor="projects-search" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">Search projects</label>
+            <Input id="projects-search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search projects…" className="h-11 min-h-[44px]" />
           </div>
         </div>
 

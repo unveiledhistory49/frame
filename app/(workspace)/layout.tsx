@@ -17,7 +17,7 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
             ["Team", "/team"],
             ["Reports", "/reports"],
           ].map(([label, href]) => (
-            <a key={href} href={href} className="whitespace-nowrap rounded-lg px-3 py-1.5 text-[13px] hover:bg-white/10">
+            <a key={href} href={href} className="flex min-h-[44px] items-center whitespace-nowrap rounded-lg px-3 text-[13px] hover:bg-white/10">
               {label}
             </a>
           ))}

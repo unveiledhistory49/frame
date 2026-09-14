@@ -1,11 +1,12 @@
 "use client";
 
 import { Icon } from "@/components/ui/Icon";
+import Image from "next/image";
 import { Avatar, Badge } from "@/components/ui/primitives";
 import { comments, tasks, userById } from "@/lib/data";
 import { useUI } from "@/lib/store";
 import { formatDateLong } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function TaskPanel() {
   const activeId = useUI((s) => s.activeTaskId);
@@ -13,23 +14,73 @@ export function TaskPanel() {
   const pushToast = useUI((s) => s.pushToast);
   const [draft, setDraft] = useState("");
   const [local, setLocal] = useState<string[]>([]);
-  const task = tasks.find((t) => t.id === activeId);
+  // Panel-reveal close (07-panel-reveal): keep the last task mounted through
+  // the 350ms close tween instead of unmounting instantly via setActive(null).
+  const [renderId, setRenderId] = useState(activeId);
+  const [entered, setEntered] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (activeId) {
+      if (closeTimer.current) {
+        clearTimeout(closeTimer.current);
+        closeTimer.current = null;
+      }
+      setRenderId(activeId);
+      setClosing(false);
+      const raf = requestAnimationFrame(() =>
+        requestAnimationFrame(() => setEntered(true))
+      );
+      return () => cancelAnimationFrame(raf);
+    }
+  }, [activeId]);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+    };
+  }, []);
+
+  const close = () => {
+    if (closing) return;
+    setEntered(false);
+    setClosing(true);
+    closeTimer.current = setTimeout(() => {
+      closeTimer.current = null;
+      setActive(null);
+    }, 350);
+  };
+
+  // Sync render state once the store has cleared after the close tween.
+  useEffect(() => {
+    if (!activeId) {
+      setRenderId(null);
+      setClosing(false);
+      setEntered(false);
+    }
+  }, [activeId]);
+
+  const task = tasks.find((t) => t.id === (activeId ?? renderId));
 
   if (!task) return null;
   const assignee = userById(task.assignees[0]);
   const list = comments.filter((c) => c.taskId === task.id);
 
+  const panelState = closing ? "is-closing" : entered ? "is-open" : "";
+  const backdropState = closing ? "is-closing" : entered ? "is-open" : "";
+
   return (
     <div className="fixed inset-0 z-40" role="dialog" aria-modal="true" aria-label="Task details">
-      <div className="anim-fade absolute inset-0 bg-slate-950/40" onClick={() => setActive(null)} />
-      <aside className="anim-pop absolute right-0 top-0 flex h-full w-[min(420px,94vw)] flex-col overflow-hidden border-l border-line bg-white shadow-pop dark:border-linedark dark:bg-carddark">
+      <div className={`t-panel-backdrop absolute inset-0 bg-slate-950/40 ${backdropState}`} onClick={close} />
+      <aside className={`t-panel-side absolute right-0 top-0 flex h-full w-[min(420px,94vw)] flex-col overflow-hidden border-l border-line bg-white shadow-pop dark:border-linedark dark:bg-carddark ${panelState}`}>
         <div className="flex items-center justify-between px-5 pt-4">
           <Badge tone="purple">{task.label}</Badge>
           <div className="flex items-center gap-1">
             <button className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100" aria-label="More options">
               <Icon name="dots" size={16} />
             </button>
-            <button onClick={() => setActive(null)} className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10" aria-label="Close panel">
+            <button onClick={close} className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10" aria-label="Close panel">
               <Icon name="x" size={16} />
             </button>
           </div>
@@ -95,8 +146,7 @@ export function TaskPanel() {
                     </p>
                     <p className="mt-0.5 text-[13px] leading-relaxed text-slate-600 dark:text-slate-300">{c.body}</p>
                     {c.image && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={c.image} alt="Attachment" className="mt-2 rounded-xl border border-line object-cover dark:border-linedark" />
+                      <Image src={c.image} alt="Landing page concept with pastel mountains over water" width={800} height={400} loading="lazy" sizes="(max-width: 420px) 90vw, 340px" className="mt-2 rounded-xl border border-line object-cover dark:border-linedark" />
                     )}
                   </div>
                 </div>

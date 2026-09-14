@@ -1,5 +1,6 @@
 import { Topbar } from "@/components/shell/Topbar";
 import { Badge, Button, Card } from "@/components/ui/primitives";
+import Image from "next/image";
 import { Icon } from "@/components/ui/Icon";
 import { users } from "@/lib/data";
 
@@ -15,8 +16,7 @@ export default function TeamPage() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {users.map((u) => (
             <Card key={u.id} className="flex items-center gap-3 p-4">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={u.avatar} alt={u.name} className="h-11 w-11 rounded-full object-cover" />
+              <Image src={u.avatar} alt={`${u.name} profile photo`} width={44} height={44} loading="lazy" priority={false} className="h-11 w-11 rounded-full object-cover" />
               <span className="min-w-0">
                 <span className="block truncate text-sm font-semibold">{u.name}</span>
                 <span className="block truncate text-xs text-slate-400">{u.role} · {u.email}</span>

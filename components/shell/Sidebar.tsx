@@ -39,7 +39,7 @@ export function Sidebar() {
         <button
           aria-label="Collapse sidebar"
           onClick={() => setCollapsed(!collapsed)}
-          className="ml-auto hidden rounded-md p-1.5 text-slate-400 hover:bg-white/10 hover:text-white lg:block"
+          className="ml-auto hidden min-h-[44px] min-w-[44px] place-items-center rounded-md p-3 text-slate-400 hover:bg-white/10 hover:text-white lg:grid"
         >
           <Icon name={collapsed ? "sidebar-right-open" : "sidebar-left-close"} size={16} />
         </button>

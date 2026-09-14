@@ -12,16 +12,36 @@ export function CommandPalette() {
   const pushToast = useUI((s) => s.pushToast);
   const [q, setQ] = useState("");
   const [idx, setIdx] = useState(0);
+  const [render, setRender] = useState(open);
+  const [entered, setEntered] = useState(false);
+  const [closing, setClosing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
+  // Modal open (250ms) / close (150ms) per 06-modal.md: keep the dialog
+  // mounted through the close tween, then unmount in cleanup.
   useEffect(() => {
     if (open) {
+      setRender(true);
+      setClosing(false);
       setQ("");
       setIdx(0);
       setTimeout(() => inputRef.current?.focus(), 30);
+      const raf = requestAnimationFrame(() =>
+        requestAnimationFrame(() => setEntered(true))
+      );
+      return () => cancelAnimationFrame(raf);
     }
-  }, [open ]);
+    if (render) {
+      setEntered(false);
+      setClosing(true);
+      const t = setTimeout(() => {
+        setRender(false);
+        setClosing(false);
+      }, 150);
+      return () => clearTimeout(t);
+    }
+  }, [open, render]);
 
   useEffect(() => {
     if (!open) return;
@@ -60,7 +80,7 @@ export function CommandPalette() {
     ...actions.map((a) => ({ title: a.title, sub: "Action", toast: a.title })),
   ];
 
-  if (!open) return null;
+  if (!render) return null;
 
   const choose = (i: number) => {
     const item = flat[i];
@@ -70,10 +90,13 @@ export function CommandPalette() {
     else if (item.toast) pushToast({ title: item.toast, body: "Created in the demo workspace." });
   };
 
+  const backdropState = closing ? "is-closing" : entered ? "is-open" : "";
+  const panelState = closing ? "is-closing" : entered ? "is-open" : "";
+
   return (
-    <div className="fixed inset-0 z-50 anim-fade" role="dialog" aria-modal="true" aria-label="Command palette">
-      <div className="absolute inset-0 bg-slate-950/50 backdrop-blur-[2px]" onClick={() => setOpen(false)} />
-      <div className="anim-pop relative mx-auto mt-[10vh] w-[min(560px,92vw)] overflow-hidden rounded-2xl border border-line bg-white shadow-pop dark:border-linedark dark:bg-carddark">
+    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Command palette">
+      <div className={`t-modal-backdrop absolute inset-0 bg-slate-950/50 backdrop-blur-[2px] ${backdropState}`} onClick={() => setOpen(false)} />
+      <div className={`t-modal relative mx-auto mt-[10vh] w-[min(560px,92vw)] overflow-hidden rounded-2xl border border-line bg-white shadow-pop dark:border-linedark dark:bg-carddark ${panelState}`}>
         <div className="flex items-center gap-2 border-b border-line px-4 dark:border-linedark">
           <Icon name="search" size={16} className="text-slate-400" />
           <input
