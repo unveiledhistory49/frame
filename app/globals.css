@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --sidebar: #0b1220;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-feature-settings: "cv11", "ss01";
+}
+
+/* Subtle scrollbars for kanban + panels */
+.nice-scroll::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.nice-scroll::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35);
+  border-radius: 999px;
+}
+.nice-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Motion: intentional, subtle */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.anim-rise {
+  animation: rise 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) both;
+}
+.anim-fade {
+  animation: fade 0.25s ease both;
+}
+.anim-pop {
+  animation: pop 0.22s cubic-bezier(0.21, 1.02, 0.73, 1) both;
+}
+.stagger > * {
+  animation: rise 0.4s cubic-bezier(0.21, 1.02, 0.73, 1) both;
+}
+.stagger > *:nth-child(1) { animation-delay: 0.02s; }
+.stagger > *:nth-child(2) { animation-delay: 0.06s; }
+.stagger > *:nth-child(3) { animation-delay: 0.1s; }
+.stagger > *:nth-child(4) { animation-delay: 0.14s; }
+.stagger > *:nth-child(5) { animation-delay: 0.18s; }
+.stagger > *:nth-child(6) { animation-delay: 0.22s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise,
+  .anim-fade,
+  .anim-pop,
+  .stagger > * {
+    animation: none;
+  }
+}
