@@ -96,7 +96,7 @@ export function CommandPalette() {
   return (
     <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Command palette">
       <div className={`t-modal-backdrop absolute inset-0 bg-slate-950/50 backdrop-blur-[2px] ${backdropState}`} onClick={() => setOpen(false)} />
-      <div className={`t-modal relative mx-auto mt-[10vh] w-[min(560px,92vw)] overflow-hidden rounded-2xl border border-line bg-white shadow-pop dark:border-linedark dark:bg-carddark ${panelState}`}>
+      <div className={`t-modal relative mx-auto mt-[10vh] w-[min(560px,92vw)] overflow-hidden rounded-2xl border border-line bg-white shadow-pop dark:border-linedark dark:bg-carddark max-md:mt-0 max-md:h-[100dvh] max-md:max-h-[100dvh] max-md:w-full max-md:rounded-none ${panelState}`}>
         <div className="flex items-center gap-2 border-b border-line px-4 dark:border-linedark">
           <Icon name="search" size={16} className="text-slate-400" />
           <input
@@ -118,11 +118,20 @@ export function CommandPalette() {
               }
             }}
             placeholder="Search anything…"
-            className="h-12 w-full bg-transparent text-[15px] outline-none placeholder:text-slate-400"
+            inputMode="search"
+            enterKeyHint="search"
+            className="h-12 max-md:h-14 w-full bg-transparent text-[15px] outline-none placeholder:text-slate-400"
           />
-          <kbd className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[11px] font-semibold text-slate-500 dark:bg-white/10">⌘ K</kbd>
+          <kbd className="hidden rounded-md bg-slate-100 px-1.5 py-0.5 text-[11px] font-semibold text-slate-500 dark:bg-white/10 sm:inline-block">⌘ K</kbd>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            className="shrink-0 rounded-md px-3 text-sm font-medium text-slate-500 min-h-[44px] md:hidden"
+          >
+            Cancel
+          </button>
         </div>
-        <div className="max-h-[46vh] overflow-y-auto p-2 nice-scroll">
+        <div className="max-h-[46vh] max-md:max-h-[60dvh] overflow-y-auto overscroll-contain p-2 nice-scroll">
           {q.trim() === "" || results.proj.length + results.people.length > 0 ? (
             <>
               <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Recent</p>

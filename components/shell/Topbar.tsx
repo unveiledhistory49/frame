@@ -23,6 +23,19 @@ export function Topbar({ title, crumbs }: { title?: string; crumbs?: string[] })
 
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-line bg-white/80 px-4 backdrop-blur dark:border-linedark dark:bg-canvashark/80 sm:px-6">
+      {/* Mobile app-bar leading cluster: labeled Menu button opens the drawer.
+          Opens via window CustomEvent('frame:menu-open') that MobileNav listens for. */}
+      <div className="flex items-center md:hidden">
+        <button
+          type="button"
+          aria-label="Open menu"
+          onClick={() => window.dispatchEvent(new CustomEvent("frame:menu-open"))}
+          className="flex h-11 min-w-[44px] items-center gap-1.5 rounded-full px-3 text-slate-500 transition hover:text-slate-800 dark:text-slate-300 dark:hover:text-white"
+        >
+          <Icon name="menu" size={18} />
+          <span className="text-sm font-medium">Menu</span>
+        </button>
+      </div>
       {crumbs && (
         <nav className="hidden items-center gap-1.5 text-[13px] text-muted md:flex dark:text-muteddark">
           {crumbs.map((c, i) => (

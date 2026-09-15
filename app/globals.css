@@ -600,3 +600,75 @@ body {
     animation: none !important;
   }
 }
+
+/* ── Mobile sheets (append-only): bottom-sheet + left drawer on shared tokens ── */
+.t-bottom-sheet {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--duration-slow) var(--ease-smooth-out),
+    opacity var(--duration-slow) var(--ease-smooth-out);
+  will-change: transform, opacity;
+}
+.t-bottom-sheet.is-open {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.t-bottom-sheet.is-closing {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--duration-medium) var(--ease-smooth-out),
+    opacity var(--duration-medium) var(--ease-smooth-out);
+}
+.t-drawer-left {
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--duration-slow) var(--ease-smooth-out),
+    opacity var(--duration-slow) var(--ease-smooth-out);
+  will-change: transform, opacity;
+}
+.t-drawer-left.is-open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.t-drawer-left.is-closing {
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--duration-medium) var(--ease-smooth-out),
+    opacity var(--duration-medium) var(--ease-smooth-out);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+@media (prefers-reduced-motion: reduce) {
+  .t-bottom-sheet,
+  .t-drawer-left {
+    transition: none !important;
+  }
+}
+
+/* Mobile: side panels render as bottom sheets, so travel vertically
+   on the same panel tokens instead of sliding horizontally. */
+@media (max-width: 767px) {
+  .t-panel-side {
+    transform: translateY(100%);
+  }
+  .t-panel-side.is-open {
+    transform: translateY(0);
+  }
+  .t-panel-side.is-closing {
+    transform: translateY(100%);
+  }
+}

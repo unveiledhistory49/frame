@@ -6,6 +6,8 @@ import Image from "next/image";
 import { Topbar } from "@/components/shell/Topbar";
 import { Kanban } from "@/components/product/Kanban";
 import { Timeline } from "@/components/product/Timeline";
+import { ProjectListView } from "@/components/product/ProjectListView";
+import { FilterSheet } from "@/components/product/FilterSheet";
 import { TaskPanel } from "@/components/product/TaskPanel";
 import { Badge, Button, Card, Skeleton } from "@/components/ui/primitives";
 import { Icon } from "@/components/ui/Icon";
@@ -15,11 +17,13 @@ import { cx } from "@/lib/utils";
 
 export default function ProjectDetail({ params }: { params: { id: string } }) {
   const project = projects.find((p) => p.id === params.id) ?? projects[0];
-  const [view, setView] = useState<"Overview" | "Board" | "Timeline" | "Activity">("Board");
+  const [view, setView] = useState<"Overview" | "Board" | "List" | "Timeline" | "Activity">("Board");
+  const [filterOpen, setFilterOpen] = useState(false);
   const [loading] = useState(false);
   const pushToast = useUI((s) => s.pushToast);
   const list = tasks.filter((t) => t.projectId === project.id);
-  const views = ["Overview", "Board", "Timeline", "Activity"] as const;
+  const views = ["Overview", "Board", "List", "Timeline", "Activity"] as const;
+  const mobileViews = ["Board", "List", "Timeline"] as const;
 
   // Sliding pill (16-tabs-sliding): JS writes the active tab's offsetLeft /
   // offsetWidth onto the pill; CSS owns the 250ms tween. First position is
@@ -62,7 +66,7 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
     <>
       {/* Cover */}
       <div className="relative">
-        <Image src="/images/covers/project-phoenix.jpg" alt="Project Phoenix cover — mountain range at dusk" width={1536} height={512} loading="eager" priority={false} className="h-44 w-full object-cover sm:h-56" />
+        <Image src="/images/covers/project-phoenix.jpg" alt="Project Phoenix cover — mountain range at dusk" width={1536} height={512} loading="eager" priority={false} className="h-36 w-full object-cover sm:h-56" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0B1220] via-[#0B1220]/55 to-transparent" />
         <div className="absolute inset-x-0 top-0">
           <div className="mx-auto flex max-w-6xl items-center gap-2 p-4 text-white">
@@ -80,9 +84,9 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
         </div>
         <div className="absolute inset-x-0 bottom-0">
           <div className="mx-auto max-w-6xl p-4 sm:p-6">
-            <h1 className="text-2xl font-bold tracking-tight text-white sm:text-[28px]">{project.name}</h1>
-            <p className="mt-0.5 text-sm text-slate-300">{project.description}</p>
-            <div className="mt-3 flex flex-wrap items-center gap-3">
+            <h1 className="text-xl font-bold tracking-tight text-white sm:text-[28px]">{project.name}</h1>
+            <p className="mt-0.5 text-[13px] text-slate-300 sm:text-sm">{project.description}</p>
+            <div className="mt-2 flex max-w-full flex-wrap items-center gap-2 sm:mt-3 sm:gap-3">
               <span className="flex items-center gap-1.5 rounded-lg bg-white/10 px-2.5 py-1 text-[13px] text-white backdrop-blur">
                 <Icon name="users" size={14} /> {project.client}
               </span>
@@ -90,17 +94,17 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
                 <span className="grid h-5 w-5 place-items-center rounded-full border border-white/30 text-[10px]">◐</span>
                 {project.progress}% complete
               </span>
-              <span className="h-1.5 w-40 overflow-hidden rounded-full bg-white/20">
+              <span className="h-1.5 w-24 overflow-hidden rounded-full bg-white/20 sm:w-40">
                 <span className="block h-full rounded-full bg-gradient-to-r from-violet-400 to-indigo-300" style={{ width: `${project.progress}%` }} />
               </span>
-              <span className="ml-auto flex items-center gap-2">
+              <span className="ml-auto flex max-w-full flex-wrap items-center gap-2">
                 <span className="flex -space-x-2">
                   {project.members.map((m) => {
                     const u = userById(m);
                     // eslint-disable-next-line @next/next/no-img-element
-                    return <Image key={m} src={u.avatar} alt={`${u.name} profile photo`} title={u.name} width={28} height={28} loading="lazy" className="h-7 w-7 rounded-full object-cover ring-2 ring-white/40" />;
+                    return <Image key={m} src={u.avatar} alt={`${u.name} profile photo`} title={u.name} width={28} height={28} loading="lazy" className="h-6 w-6 rounded-full object-cover ring-2 ring-white/40 sm:h-7 sm:w-7" />;
                   })}
-                  <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20 text-[11px] font-semibold text-white ring-2 ring-white/40">+3</span>
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-white/20 text-[11px] font-semibold text-white ring-2 ring-white/40 sm:h-7 sm:w-7">+3</span>
                 </span>
                 <Button size="sm" variant="secondary" onClick={() => pushToast({ title: "Share link copied" })}>
                   <Icon name="share" size={14} /> Share
@@ -112,7 +116,7 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
       </div>
 
       <div className="border-b border-line bg-white dark:border-linedark dark:bg-canvashark">
-        <div role="tablist" aria-label="Project views" className="t-tabs-underline mx-auto flex max-w-6xl gap-1 px-4 sm:px-6">
+        <div role="tablist" aria-label="Project views" className="t-tabs-underline mx-auto hidden max-w-6xl gap-1 px-4 sm:px-6 md:flex">
           {views.map((v) => (
             <button
               key={v}
@@ -130,14 +134,36 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
           ))}
           <span ref={pillRef} aria-hidden="true" className="t-tabs-underline-pill bg-accentdeep dark:bg-accent" />
         </div>
+        {/* Mobile segmented control: Board/List/Timeline only (Activity via bottom nav + desktop tabs) */}
+        <div className="mx-auto max-w-6xl px-4 py-2 md:hidden">
+          <div role="tablist" aria-label="Project views" className="grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1 dark:bg-white/10">
+            {mobileViews.map((v) => (
+              <button
+                key={v}
+                role="tab"
+                aria-selected={view === v}
+                aria-pressed={view === v}
+                onClick={() => setView(v)}
+                className={cx(
+                  "min-h-[44px] rounded-lg px-2 text-sm font-medium transition-colors",
+                  view === v
+                    ? "bg-white text-accentdeep shadow-sm dark:bg-white/15 dark:text-white"
+                    : "text-slate-500 dark:text-slate-400"
+                )}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <main className="mx-auto max-w-6xl space-y-4 p-4 sm:p-6">
         <div className="flex items-center gap-2">
           <Button variant="secondary" size="sm"><Icon name="columns" size={14} /> {view} <Icon name="chevron-down" size={13} /></Button>
           <span className="flex-1" />
-          <Button variant="ghost" size="sm"><Icon name="filter" size={14} /> Filter</Button>
-          <Button variant="ghost" size="sm"><Icon name="arrows-sort" size={14} /> Sort</Button>
+          <Button variant="ghost" size="sm" onClick={() => setFilterOpen(true)}><Icon name="filter" size={14} /> Filter</Button>
+          <Button variant="ghost" size="sm" className="hidden sm:inline-flex"><Icon name="arrows-sort" size={14} /> Sort</Button>
           <Button variant="ghost" size="sm" onClick={() => pushToast({ title: "Task created", body: "Added to Backlog." })}><Icon name="plus" size={14} /> Add task</Button>
         </div>
 
@@ -145,6 +171,8 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
           <div className="grid grid-cols-4 gap-3">{[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-64" />)}</div>
         ) : view === "Board" ? (
           <Kanban projectId={project.id} />
+        ) : view === "List" ? (
+          <ProjectListView projectId={project.id} />
         ) : view === "Timeline" ? (
           <Card className="p-5"><Timeline projectId={project.id} /></Card>
         ) : view === "Overview" ? (
@@ -203,6 +231,7 @@ export default function ProjectDetail({ params }: { params: { id: string } }) {
           ))}
         </div>
       </main>
+      <FilterSheet open={filterOpen} onClose={() => setFilterOpen(false)} />
       <TaskPanel />
     </>
   );

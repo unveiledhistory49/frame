@@ -20,6 +20,7 @@ export function TaskPanel() {
   const [entered, setEntered] = useState(false);
   const [closing, setClosing] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchStartY = useRef<number | null>(null);
 
   useEffect(() => {
     if (activeId) {
@@ -73,19 +74,33 @@ export function TaskPanel() {
   return (
     <div className="fixed inset-0 z-40" role="dialog" aria-modal="true" aria-label="Task details">
       <div className={`t-panel-backdrop absolute inset-0 bg-slate-950/40 ${backdropState}`} onClick={close} />
-      <aside className={`t-panel-side absolute right-0 top-0 flex h-full w-[min(420px,94vw)] flex-col overflow-hidden border-l border-line bg-white shadow-pop dark:border-linedark dark:bg-carddark ${panelState}`}>
+      <aside
+        className={`t-panel-side absolute flex flex-col overflow-hidden bg-white shadow-pop dark:bg-carddark md:right-0 md:top-0 md:h-full md:w-[min(420px,94vw)] md:border-l md:border-line dark:md:border-linedark max-md:inset-x-0 max-md:top-auto max-md:bottom-0 max-md:h-[92dvh] max-md:w-full max-md:rounded-t-3xl max-md:border-l-0 max-md:border-t max-md:border-line dark:max-md:border-linedark ${panelState}`}
+        onTouchStart={(e) => {
+          touchStartY.current = e.touches[0].clientY;
+        }}
+        onTouchEnd={(e) => {
+          if (touchStartY.current == null) return;
+          const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+          touchStartY.current = null;
+          if (deltaY > 90) close();
+        }}
+      >
+        <div aria-hidden="true" className="flex h-11 shrink-0 items-center justify-center md:hidden">
+          <span className="h-1 w-10 rounded-full bg-slate-300 dark:bg-white/20" />
+        </div>
         <div className="flex items-center justify-between px-5 pt-4">
           <Badge tone="purple">{task.label}</Badge>
           <div className="flex items-center gap-1">
-            <button className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100" aria-label="More options">
+            <button className="grid place-items-center rounded-md p-1.5 text-slate-400 hover:bg-slate-100 max-md:min-h-[44px] max-md:min-w-[44px]" aria-label="More options">
               <Icon name="dots" size={16} />
             </button>
-            <button onClick={close} className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10" aria-label="Close panel">
+            <button onClick={close} className="grid place-items-center rounded-md p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 max-md:min-h-[44px] max-md:min-w-[44px]" aria-label="Close panel">
               <Icon name="x" size={16} />
             </button>
           </div>
         </div>
-        <div className="nice-scroll flex-1 overflow-y-auto px-5 pb-5">
+        <div className="nice-scroll flex-1 overscroll-contain overflow-y-auto px-5 pb-5">
           <h2 className="mt-2 text-xl font-bold tracking-tight">{task.title}</h2>
           <p className="mt-1 text-sm leading-relaxed text-slate-500">{task.description}</p>
           <div className="mt-4">
@@ -164,7 +179,7 @@ export function TaskPanel() {
           </div>
         </div>
         <form
-          className="border-t border-line p-3 dark:border-linedark"
+          className="border-t border-line p-3 pb-[env(safe-area-inset-bottom)] dark:border-linedark"
           onSubmit={(e) => {
             e.preventDefault();
             if (!draft.trim()) return;
@@ -178,10 +193,11 @@ export function TaskPanel() {
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               placeholder="Add a comment…"
+              inputMode="text"
               className="h-10 w-full bg-transparent text-sm outline-none placeholder:text-slate-400"
             />
             <Icon name="paperclip" size={16} className="shrink-0 text-slate-400" />
-            <button type="submit" aria-label="Send comment" className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-accentdeep text-white">
+            <button type="submit" aria-label="Send comment" className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-accentdeep text-white max-md:h-11 max-md:w-11">
               <Icon name="send" size={15} />
             </button>
           </div>
